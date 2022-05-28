@@ -14,6 +14,8 @@
 import os
 import sys
 
+import django_generate_series
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -22,8 +24,6 @@ import sys
 cwd = os.getcwd()
 parent = os.path.dirname(cwd)
 sys.path.append(parent)
-
-import django_generate_series
 
 # -- General configuration -----------------------------------------------------
 
@@ -202,7 +202,7 @@ latex_elements = {
     # The font size ('10pt', '11pt' or '12pt').
     "pointsize": "10pt",
     # Additional stuff for the LaTeX preamble.
-    #'preamble': '',
+    # 'preamble': '',
 }
 
 # Grouping the document tree into LaTeX files. List of tuples

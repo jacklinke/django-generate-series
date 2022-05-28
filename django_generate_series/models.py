@@ -1,5 +1,4 @@
 import decimal
-from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
@@ -157,11 +156,11 @@ class FromRaw:
 
         # Check that stop is larger or equal to start
         if not self.start <= self.stop:
-            raise ValueError(f"Start value must be smaller or equal to stop value")
+            raise ValueError("Start value must be smaller or equal to stop value")
 
         # Only numeric series can use just `start` & `stop`. Other types also need `step`
         if self.step is None and not isinstance(self.start, int):
-            raise Exception(f"Step must be provided for non-integer series")
+            raise Exception("Step must be provided for non-integer series")
 
         # If step is a str, make sure it is formatted correctly
         #   Starting with a numeric value, then a space, and then a valid interval unit
@@ -175,11 +174,11 @@ class FromRaw:
                 )
 
             try:
-                interval = float(interval)
+                float(interval)
             except ValueError:
                 raise ValueError("Invalid interval value. Must be capable of being converted to a numeric type.")
 
-            if not interval_unit in INTERVAL_UNITS:
+            if interval_unit not in INTERVAL_UNITS:
                 raise Exception("Invalid interval unit")
 
     def get_raw_query(self):
@@ -246,7 +245,7 @@ class FromRaw:
                 else:
                     sql = """
                         SELECT numrange(a, a + %s) AS term
-	                        FROM generate_series(%s, %s, %s) a
+                        FROM generate_series(%s, %s, %s) a
                     """
             elif self.field_type == FieldType.BIGINTEGER:
                 if self.include_id:
@@ -328,7 +327,7 @@ class FromRaw:
 class GenerateSeriesQuery(Query):
     def __init__(self, *args, _series_func=None, **kwargs):
         self._series_func = _series_func
-        return super().__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_compiler(self, *args, **kwargs):
         compiler = super().get_compiler(*args, **kwargs)
@@ -350,13 +349,12 @@ class GenerateSeriesQuery(Query):
 class GenerateSeriesQuerySet(models.QuerySet):
     def __init__(self, *args, query=None, _series_func=None, **kwargs):
         empty_query = query is None
-        r = super().__init__(*args, query=query, **kwargs)
+        super().__init__(*args, query=query, **kwargs)
         if empty_query:
             self.query = GenerateSeriesQuery(
                 self.model,
                 _series_func=_series_func,
             )
-        return r
 
 
 class GenerateSeriesManager(models.Manager):
@@ -381,9 +379,9 @@ class AbstractSeriesModel(AbstractBaseSeriesModel):
 
 
 def generate_series(
-    start: Union[int, date, datetime, datetimetz],
-    stop: Union[int, date, datetime, datetimetz],
-    step: Optional[Union[int, str]] = None,
+    start: Union[int, Decimal, date, datetime, datetimetz],
+    stop: Union[int, Decimal, date, datetime, datetimetz],
+    step: Optional[Union[int, Decimal, str]] = None,
     span: Optional[int] = 1,
     *,
     output_field: Type[models.Field],
@@ -423,7 +421,7 @@ def _make_model_class(output_field, include_id, max_digits, decimal_places, defa
 
     # Limit default_bounds to valid string values
     if default_bounds not in ["[]", "()", "[)", "(]", None]:
-        raise ValueError(f"Value of default_bounds must be one of: '[]', '()', '[)', '(]'")
+        raise ValueError("Value of default_bounds must be one of: '[]', '()', '[)', '(]'")
 
     if include_id:
         model_dict["id"] = models.BigAutoField(primary_key=True)
